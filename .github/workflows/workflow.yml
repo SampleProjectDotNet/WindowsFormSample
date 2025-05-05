@@ -47,6 +47,6 @@ jobs:
 
     # Run tests
     - name: Run tests
+      shell: cmd
       run: |
-        vstest.console.exe `
-            "${{ github.workspace }}\WindowsFormsApp\bin\Release\WindowsFormsApp.Tests.dll"
+        "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\Common7\IDE\Extensions\TestPlatform\vstest.console.exe" WindowsFormsApp\bin\Release\WindowsFormsApp.Tests.dll
