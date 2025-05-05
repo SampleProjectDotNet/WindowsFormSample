@@ -1,9 +1,6 @@
 name: .NET Framework Build
 
 on:
-  push:
-    branches:
-      - main
   pull_request:
     branches:
       - main
@@ -22,7 +19,7 @@ jobs:
     - name: Setup MSBuild
       uses: microsoft/setup-msbuild@v1
 
-      # Cache NuGet packages
+    # Cache NuGet packages
     - name: Cache NuGet packages
       uses: actions/cache@v4
       with:
@@ -51,4 +48,4 @@ jobs:
     # Run tests
     - name: Run tests
       run: |
-        "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\Common7\IDE\Extensions\TestPlatform\vstest.console.exe" WindowsFormsApp\bin\Release\WindowsFormsApp.Tests.dll
+        vstest.console.exe $(System.DefaultWorkingDirectory)\WindowsFormsApp\bin\Release\WindowsFormsApp.Tests.dll
