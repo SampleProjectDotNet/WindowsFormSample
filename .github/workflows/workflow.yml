@@ -1,0 +1,31 @@
+name: .NET Framework Build
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:   
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+    # Checkout the repository
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    # Setup MSBuild
+    - name: Setup MSBuild
+      uses: microsoft/setup-msbuild@v1
+
+    # Restore NuGet packages
+    - name: Restore NuGet packages
+      run: nuget restore WindowsFormsApp/WindowsFormsApp.sln
+
+    # Build the solution using MSBuild
+    - name: Build solution
+      run: msbuild WindowsFormsApp/WindowsFormsApp.sln /p:Configuration=Release
