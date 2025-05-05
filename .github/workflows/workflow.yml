@@ -16,11 +16,20 @@ jobs:
     steps:
     # Checkout the repository
     - name: Checkout code
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
 
     # Setup MSBuild
     - name: Setup MSBuild
       uses: microsoft/setup-msbuild@v1
+
+      # Cache NuGet packages
+    - name: Cache NuGet packages
+      uses: actions/cache@v4
+      with:
+        path: ~/.nuget/packages
+        key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj', '**/*.sln') }}
+        restore-keys: |
+          ${{ runner.os }}-nuget-
 
     # Restore NuGet packages
     - name: Restore NuGet packages
