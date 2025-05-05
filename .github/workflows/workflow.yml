@@ -41,12 +41,12 @@ jobs:
     needs: build 
 
     steps:
-    # Checkout the repository
-    - name: Checkout code
-      uses: actions/checkout@v4
-
-    # Run tests
-    - name: Run tests
-      shell: cmd
-      run: |
-        "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\Common7\IDE\Extensions\TestPlatform\vstest.console.exe" WindowsFormsApp\bin\Release\WindowsFormsApp.Tests.dll
+      - uses: actions/checkout@v3
+      - name: Verificar vstest no PATH
+        run: where vstest.console.exe
+      - name: Adicionar VSTest ao PATH
+        run: |
+          echo "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\Common7\IDE\CommonExtensions\Microsoft\TestWindow" |
+            Out-File -FilePath $env:GITHUB_PATH -Append
+      - name: Executar testes
+        run: vstest.console.exe /Platform:x64 .\test\MyTests.dll
