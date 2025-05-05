@@ -41,12 +41,18 @@ jobs:
     needs: build 
 
     steps:
-      - uses: actions/checkout@v3
-      - name: Verificar vstest no PATH
-        run: where vstest.console.exe
-      - name: Adicionar VSTest ao PATH
+      - uses: actions/checkout@v4
+    
+      - name: Rodar testes com VSTest (.NET Framework)
+        shell: pwsh
         run: |
-          echo "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\Common7\IDE\CommonExtensions\Microsoft\TestWindow" |
-            Out-File -FilePath $env:GITHUB_PATH -Append
-      - name: Executar testes
-        run: vstest.console.exe /Platform:x64 .\test\MyTests.dll
+          # Detecta caminho do Visual Studio com vswhere
+          $vsPath = & "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe" -latest -products * -property installationPath
+          $vstest = "$vsPath\Common7\IDE\CommonExtensions\Microsoft\TestWindow\vstest.console.exe"
+    
+          # Exibe caminho usado
+          Write-Host "Usando VSTest em: $vstest"
+    
+          # Executa testes (ajuste o caminho se necessário)
+          & "$vstest" /Platform:x64 WindowsFormsApp\bin\Release\WindowsFormsApp.Tests.dll
+
