@@ -35,34 +35,26 @@ jobs:
     # Build the solution using MSBuild
     - name: Build solution
       run: msbuild WindowsFormsApp/WindowsFormsApp.sln /p:Configuration=Release
-
-  test:
-    runs-on: windows-latest
-    needs: build 
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Setup MSBuild
-        uses: microsoft/setup-msbuild@v1
-
-      - name: Restore NuGet packages
-        run: nuget restore WindowsFormsApp/WindowsFormsApp.sln
-
-      - name: Build solution
-        run: msbuild WindowsFormsApp/WindowsFormsApp.sln /p:Configuration=Release
-
-      - name: Rodar testes com VSTest (.NET Framework)
-        shell: pwsh
-        run: |
-          # Detecta caminho do Visual Studio com vswhere
-          $vsPath = & "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe" -latest -products * -property installationPath
-          $vstest = "$vsPath\Common7\IDE\CommonExtensions\Microsoft\TestWindow\vstest.console.exe"
     
-          # Exibe caminho usado
-          Write-Host "Usando VSTest em: $vstest"
-    
-          # Executa testes - ajuste o caminho se necessário
-          & "$vstest" /Platform:x64 WindowsFormsApp.Tests\bin\Release\WindowsFormsApp.Tests.dll
+    - name: Verificar se DLL de teste existe
+      shell: pwsh
+      run: |
+          $dllPath = Join-Path "${{ github.workspace }}" "WindowsFormsApp.Tests\bin\Release\WindowsFormsApp.Tests.dll"
+          if (Test-Path $dllPath) {
+            Write-Host "✔ DLL encontrada: $dllPath"
+          } else {
+            Write-Error "❌ DLL de teste não encontrada: $dllPath"
+            exit 1
+          }
 
+    - name: Executar testes com VSTest
+      shell: pwsh
+      run: |
+          $vswhere = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe"
+          $vsPath  = & $vswhere -latest -products * -property installationPath
+          $vstest  = "$vsPath\Common7\IDE\CommonExtensions\Microsoft\TestWindow\vstest.console.exe"
+
+          $dllPath = Join-Path "${{ github.workspace }}" "WindowsFormsApp.Tests\bin\Release\WindowsFormsApp.Tests.dll"
+          Write-Host "Executando testes em: $dllPath"
+          & "$vstest" /Platform:x64 $dllPath
 
