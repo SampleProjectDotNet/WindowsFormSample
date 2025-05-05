@@ -38,3 +38,17 @@ jobs:
     # Build the solution using MSBuild
     - name: Build solution
       run: msbuild WindowsFormsApp/WindowsFormsApp.sln /p:Configuration=Release
+
+  test:
+    runs-on: windows-latest
+    needs: build 
+
+    steps:
+    # Checkout the repository
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    # Run tests
+    - name: Run tests
+      run: |
+        "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\Common7\IDE\Extensions\TestPlatform\vstest.console.exe" WindowsFormsApp\bin\Release\WindowsFormsApp.Tests.dll
