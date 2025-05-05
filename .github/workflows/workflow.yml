@@ -42,7 +42,16 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-    
+
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v1
+
+      - name: Restore NuGet packages
+        run: nuget restore WindowsFormsApp/WindowsFormsApp.sln
+
+      - name: Build solution
+        run: msbuild WindowsFormsApp/WindowsFormsApp.sln /p:Configuration=Release
+
       - name: Rodar testes com VSTest (.NET Framework)
         shell: pwsh
         run: |
@@ -53,6 +62,7 @@ jobs:
           # Exibe caminho usado
           Write-Host "Usando VSTest em: $vstest"
     
-          # Executa testes (ajuste o caminho se necessário)
-          & "$vstest" /Platform:x64 WindowsFormsApp\bin\Release\WindowsFormsApp.Tests.dll
+          # Executa testes - ajuste o caminho se necessário
+          & "$vstest" /Platform:x64 WindowsFormsApp.Tests\bin\Release\WindowsFormsApp.Tests.dll
+
 
