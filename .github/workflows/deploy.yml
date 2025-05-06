@@ -7,6 +7,7 @@ on:
         description: 'Nome do artifact gerado pela etapa de build'
         required: false
         default: 'build-output'
+        type: string
 
 jobs:
   deploy:
