@@ -48,7 +48,7 @@ jobs:
 #           & $vstest $dll.FullName --logger:trx
 #         }
 
-  analyze:
+  quality-gate:
     # needs: build
     runs-on: windows-latest
 
@@ -68,8 +68,9 @@ jobs:
           SonarScanner.MSBuild.exe begin `
             /k:"${{ secrets.SONAR_PROJECT_KEY }}" `
             /o:"${{ secrets.SONAR_ORGANIZATION }}" `
-            /d:sonar.host.url="https://sonarcloud.io" `
+            /d:sonar.host.url="${{ secrets.SONAR_URL }}" `
             /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
+            /d:sonar.qualitygate.wait=true
 
       - name: Restore NuGet packages
         run: nuget restore WindowsFormsApp/WindowsFormsApp.sln
@@ -81,4 +82,14 @@ jobs:
         shell: pwsh
         run: |
           SonarScanner.MSBuild.exe end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
+
+      - name: SonarCloud Quality Gate check
+        if: always()
+        id: quality-gate
+        uses: sonarsource/sonarqube-quality-gate-action@master
+        with:
+          pollingTimeoutSec: 300
+        env:
+          SONAR_HOST_URL: ${{ secrets.SONAR_URL }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
