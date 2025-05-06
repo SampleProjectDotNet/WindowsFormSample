@@ -1,20 +1,26 @@
-name: .NET Framework Build
+name: Build, Test and Sonar Analysis
 
 on:
-  push:
-    branches:
-      - main
-  pull_request:
-    branches:
-      - main
-  workflow_dispatch:   
+  workflow_call:
+    inputs:
+      runSonar:
+        required: false
+        type: boolean
+    secrets:
+      SONAR_PROJECT_KEY:
+        required: false
+      SONAR_ORGANIZATION:
+        required: false
+      SONAR_URL:
+        required: false
+      SONAR_TOKEN:
+        required: false
 
 jobs:
-  build:
+  build-and-test:
     runs-on: windows-latest
 
     steps:
-
     - name: Checkout code
       uses: actions/checkout@v4
 
@@ -32,9 +38,20 @@ jobs:
     - name: Restore NuGet packages
       run: nuget restore WindowsFormsApp/WindowsFormsApp.sln
 
+    - name: (Optional) Begin SonarCloud analysis
+      if: inputs.runSonar == true
+      run: |
+        choco install sonarscanner-msbuild-net46 --no-progress
+        SonarScanner.MSBuild.exe begin `
+          /k:"${{ secrets.SONAR_PROJECT_KEY }}" `
+          /o:"${{ secrets.SONAR_ORGANIZATION }}" `
+          /d:sonar.host.url="${{ secrets.SONAR_URL }}" `
+          /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
+      shell: pwsh
+
     - name: Build solution
       run: msbuild WindowsFormsApp/WindowsFormsApp.sln /p:Configuration=Release
-    
+
     - name: Run tests using VSTest
       shell: pwsh
       run: |
@@ -47,37 +64,17 @@ jobs:
           & $vstest $dll.FullName --logger:trx
         }
 
-  quality-gate:
-    needs: build
-    runs-on: windows-latest
+    - name: End SonarCloud analysis
+      if: inputs.runSonar == true
+      run: |
+        SonarScanner.MSBuild.exe end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
+      shell: pwsh
 
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup MSBuild
-        uses: microsoft/setup-msbuild@v1
-
-      - name: Install SonarScanner for MSBuild
-        run: choco install sonarscanner-msbuild-net46 --no-progress
-
-      - name: Begin SonarCloud analysis
-        shell: pwsh
-        run: |
-          SonarScanner.MSBuild.exe begin `
-            /k:"${{ secrets.SONAR_PROJECT_KEY }}" `
-            /o:"${{ secrets.SONAR_ORGANIZATION }}" `
-            /d:sonar.host.url="${{ secrets.SONAR_URL }}" `
-            /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
-
-      - name: Restore NuGet packages
-        run: nuget restore WindowsFormsApp/WindowsFormsApp.sln
-
-      - name: Build solution
-        run: msbuild WindowsFormsApp/WindowsFormsApp.sln /p:Configuration=Release
-
-      - name: End SonarCloud analysis
-        shell: pwsh
-        run: |
-          SonarScanner.MSBuild.exe end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: build-output
+        path: |
+          WindowsFormsApp/**/bin/Release/*.dll
+          WindowsFormsApp/**/bin/Release/*.exe
 

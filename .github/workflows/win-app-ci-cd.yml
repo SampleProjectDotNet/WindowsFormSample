@@ -1,13 +1,14 @@
-name: CI - Build, Test, Sonar (.NET Framework on Windows)
+name: CI/CD Orquestrado
 
 on:
-  pull_request:
+  push:
     branches:
       - main
   workflow_dispatch:
 
 jobs:
   build-and-test:
+    name: CI – Build, Test e Sonar
     uses: ./.github/workflows/dotnet-build-test.yml
     with:
       runSonar: true
@@ -16,3 +17,9 @@ jobs:
       SONAR_ORGANIZATION: ${{ secrets.SONAR_ORGANIZATION }}
       SONAR_URL: ${{ secrets.SONAR_URL }}
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+  deploy:
+    needs: build-and-test
+    uses: ./.github/workflows/dotnet-deploy.yml
+    with:
+      artifact-name: build-output
