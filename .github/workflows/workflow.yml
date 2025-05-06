@@ -59,7 +59,7 @@ jobs:
       uses: microsoft/setup-msbuild@v1
 
     - name: Install SonarScanner for MSBuild
-      run: choco install sonarscanner-msbuild --no-progress
+      run: choco install sonarscanner-msbuild-net46
 
     - name: Begin SonarCloud analysis
       shell: pwsh
