@@ -70,11 +70,16 @@ jobs:
         SonarScanner.MSBuild.exe end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
       shell: pwsh
 
-    - name: Upload build artifacts
+    - name: Pack NuGet package
+      run: |
+        dotnet pack WindowsFormsApp/WindowsFormsApp.csproj \
+          --configuration Release \
+          --output nupkg
+      shell: pwsh
+
+    - name: Upload NuGet package artifact
       uses: actions/upload-artifact@v4
       with:
-        name: build-output
-        path: |
-          WindowsFormsApp/**/bin/Release/*.dll
-          WindowsFormsApp/**/bin/Release/*.exe
+        name: nupkg
+        path: nupkg/*.nupkg
 

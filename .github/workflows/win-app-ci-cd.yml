@@ -22,4 +22,4 @@ jobs:
     needs: build-and-test
     uses: ./.github/workflows/deploy.yml
     with:
-      artifact-name: build-output
+      artifact-name: nupkg
