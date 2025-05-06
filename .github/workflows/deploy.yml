@@ -1,11 +1,12 @@
 name: CD - Deploy Windows App
 
 on:
-  workflow_dispatch:
-  workflow_run:
-    workflows: ["CI - Build, Test, Sonar (.NET Framework on Windows)"]
-    types:
-      - completed
+  workflow_call:
+    inputs:
+      artifact-name:
+        description: 'Nome do artifact gerado pela etapa de build'
+        required: false
+        default: 'build-output'
 
 jobs:
   deploy:
