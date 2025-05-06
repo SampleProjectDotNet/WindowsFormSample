@@ -71,8 +71,11 @@ jobs:
             /d:sonar.host.url="https://sonarcloud.io" `
             /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
 
-      - name: Build solution (again for analysis)
-        run: msbuild WindowsFormsApp/WindowsFormsApp.sln /p:Configuration=Release
+      - name: Restore NuGet packages
+        run: nuget restore WindowsFormSample/WindowsFormsApp/WindowsFormsApp.sln
+
+      - name: Build solution
+        run: msbuild WindowsFormSample/WindowsFormsApp/WindowsFormsApp.sln /p:Configuration=Release
 
       - name: End SonarCloud analysis
         shell: pwsh
