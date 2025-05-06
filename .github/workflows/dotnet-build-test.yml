@@ -1,4 +1,4 @@
-name: Build and Test
+name: Build, Test and Sonar Analysis
 
 on:
   workflow_call:
@@ -69,3 +69,12 @@ jobs:
       run: |
         SonarScanner.MSBuild.exe end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
       shell: pwsh
+
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: build-output
+        path: |
+          WindowsFormsApp/**/bin/Release/*.dll
+          WindowsFormsApp/**/bin/Release/*.exe
+
