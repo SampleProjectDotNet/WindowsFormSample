@@ -72,8 +72,8 @@ jobs:
 
     - name: Pack NuGet package
       run: |
-        dotnet pack WindowsFormsApp/WindowsFormsApp.csproj \
-          --configuration Release \
+        dotnet pack WindowsFormsApp/WindowsFormsApp.csproj `
+          --configuration Release `
           --output nupkg
       shell: pwsh
 
