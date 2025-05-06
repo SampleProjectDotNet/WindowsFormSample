@@ -41,10 +41,40 @@ jobs:
       run: |
         $vsPath = & "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe" -latest -products * -property installationPath
         $vstest = "$vsPath\Common7\IDE\CommonExtensions\Microsoft\TestWindow\vstest.console.exe"
-    
+
         $dlls = Get-ChildItem -Recurse -Filter *Tests.dll | Where-Object { $_.FullName -like "*bin*Release*" }
-    
+
         foreach ($dll in $dlls) {
           & $vstest $dll.FullName --logger:trx
         }
+
+  analyze:
+    runs-on: windows-latest
+    needs: build
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup MSBuild
+      uses: microsoft/setup-msbuild@v1
+
+    - name: Install SonarScanner for MSBuild
+      run: choco install sonarscanner-msbuild --version=5.13.0.66742 --no-progress
+
+    - name: Begin SonarCloud analysis
+      shell: pwsh
+      run: |
+        SonarScanner.MSBuild.exe begin `
+          /k:"${{ secrets.SONAR_PROJECT_KEY }}" `
+          /o:"${{ secrets.SONAR_ORGANIZATION }}" `
+          /d:sonar.host.url="${{ secrets.SONAR_URL }}" `
+          /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
+
+    - name: Build solution (again for analysis)
+      run: msbuild WindowsFormsApp/WindowsFormsApp.sln /p:Configuration=Release
+
+    - name: End SonarCloud analysis
+      shell: pwsh
+      run: |
+        SonarScanner.MSBuild.exe end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
 
