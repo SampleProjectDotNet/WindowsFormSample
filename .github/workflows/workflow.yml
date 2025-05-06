@@ -49,32 +49,33 @@ jobs:
         }
 
   analyze:
-    runs-on: windows-latest
     needs: build
+    runs-on: windows-latest
+
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-    - name: Setup MSBuild
-      uses: microsoft/setup-msbuild@v1
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v1
 
-    - name: Install SonarScanner for MSBuild
-      run: choco install sonarscanner-msbuild-net46
+      - name: Install SonarScanner for MSBuild
+        run: choco install sonarscanner-msbuild-net46 --no-progress
 
-    - name: Begin SonarCloud analysis
-      shell: pwsh
-      run: |
-        SonarScanner.MSBuild.exe begin `
-          /k:"${{ secrets.SONAR_PROJECT_KEY }}" `
-          /o:"${{ secrets.SONAR_ORGANIZATION }}" `
-          /d:sonar.host.url="${{ secrets.SONAR_URL }}" `
-          /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
+      - name: Begin SonarCloud analysis
+        shell: pwsh
+        run: |
+          SonarScanner.MSBuild.exe begin `
+            /k:"${{ secrets.SONAR_PROJECT_KEY }}" `
+            /o:"${{ secrets.SONAR_ORGANIZATION }}" `
+            /d:sonar.host.url="https://sonarcloud.io" `
+            /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
 
-    - name: Build solution (again for analysis)
-      run: msbuild WindowsFormsApp/WindowsFormsApp.sln /p:Configuration=Release
+      - name: Build solution (again for analysis)
+        run: msbuild WindowsFormSample/WindowsFormsApp/WindowsFormsApp.sln /p:Configuration=Release
 
-    - name: End SonarCloud analysis
-      shell: pwsh
-      run: |
-        SonarScanner.MSBuild.exe end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
+      - name: End SonarCloud analysis
+        shell: pwsh
+        run: |
+          SonarScanner.MSBuild.exe end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
 
