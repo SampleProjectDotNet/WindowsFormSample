@@ -38,7 +38,7 @@ jobs:
     - name: Restore NuGet packages
       run: nuget restore WindowsFormsApp/WindowsFormsApp.sln
 
-    - name: (Optional) Begin SonarCloud analysis
+    - name: Begin SonarCloud analysis
       if: inputs.runSonar == true
       run: |
         choco install sonarscanner-msbuild-net46 --no-progress

@@ -24,12 +24,13 @@ jobs:
       run: dir .\app\ /s
       shell: cmd
 
-    - name: 🚀 Deploy para ambiente de produção (mock)
+    - name: Publicar pacote no GitHub Packages
       run: |
-        echo Simulando deploy...
-        echo Copiando arquivos da pasta ./app para destino final...
-        REM xcopy .\app "C:\inetpub\wwwroot\MyApp" /E /Y
+        dotnet nuget push .\app\WindowsFormsApp\bin\Release\*.nupkg ^
+          --source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json" ^
+          --api-key "${{ secrets.GITHUB_TOKEN }}" ^
+          --skip-duplicate
       shell: cmd
 
-    - name: ✅ Notificar sucesso (mock)
-      run: echo "Deploy concluído com sucesso!"
+    - name: Notificar sucesso
+      run: echo "Upload para GitHub Packages concluído com sucesso!"
