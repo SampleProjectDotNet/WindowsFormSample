@@ -36,25 +36,15 @@ jobs:
     - name: Build solution
       run: msbuild WindowsFormsApp/WindowsFormsApp.sln /p:Configuration=Release
     
-    - name: Verificar se DLL de teste existe
+    - name: Run tests using VSTest
       shell: pwsh
       run: |
-          $dllPath = Join-Path "${{ github.workspace }}" "WindowsFormsApp.Tests\bin\Release\WindowsFormsApp.Tests.dll"
-          if (Test-Path $dllPath) {
-            Write-Host "✔ DLL encontrada: $dllPath"
-          } else {
-            Write-Error "❌ DLL de teste não encontrada: $dllPath"
-            exit 1
-          }
-
-    - name: Executar testes com VSTest
-      shell: pwsh
-      run: |
-          $vswhere = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe"
-          $vsPath  = & $vswhere -latest -products * -property installationPath
-          $vstest  = "$vsPath\Common7\IDE\CommonExtensions\Microsoft\TestWindow\vstest.console.exe"
-
-          $dllPath = Join-Path "${{ github.workspace }}" "WindowsFormsApp.Tests\bin\Release\WindowsFormsApp.Tests.dll"
-          Write-Host "Executando testes em: $dllPath"
-          & "$vstest" /Platform:x64 $dllPath
+        $vsPath = & "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe" -latest -products * -property installationPath
+        $vstest = "$vsPath\Common7\IDE\CommonExtensions\Microsoft\TestWindow\vstest.console.exe"
+    
+        $dlls = Get-ChildItem -Recurse -Filter *Tests.dll | Where-Object { $_.FullName -like "*bin*Release*" }
+    
+        foreach ($dll in $dlls) {
+          & $vstest $dll.FullName --logger:trx
+        }
 
