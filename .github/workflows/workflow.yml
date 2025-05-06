@@ -72,10 +72,10 @@ jobs:
             /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
 
       - name: Restore NuGet packages
-        run: nuget restore WindowsFormSample/WindowsFormsApp/WindowsFormsApp.sln
+        run: nuget restore WindowsFormsApp/WindowsFormsApp.sln
 
       - name: Build solution
-        run: msbuild WindowsFormSample/WindowsFormsApp/WindowsFormsApp.sln /p:Configuration=Release
+        run: msbuild WindowsFormsApp/WindowsFormsApp.sln /p:Configuration=Release
 
       - name: End SonarCloud analysis
         shell: pwsh
