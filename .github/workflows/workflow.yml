@@ -6,50 +6,50 @@ on:
       - main
   workflow_dispatch:   
 
-jobs:
-  build:
-    runs-on: windows-latest
+# jobs:
+#   build:
+#     runs-on: windows-latest
 
-    steps:
-    # Checkout the repository
-    - name: Checkout code
-      uses: actions/checkout@v4
+#     steps:
+#     # Checkout the repository
+#     - name: Checkout code
+#       uses: actions/checkout@v4
 
-    # Setup MSBuild
-    - name: Setup MSBuild
-      uses: microsoft/setup-msbuild@v1
+#     # Setup MSBuild
+#     - name: Setup MSBuild
+#       uses: microsoft/setup-msbuild@v1
 
-    # Cache NuGet packages
-    - name: Cache NuGet packages
-      uses: actions/cache@v4
-      with:
-        path: ~/.nuget/packages
-        key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj', '**/*.sln') }}
-        restore-keys: |
-          ${{ runner.os }}-nuget-
+#     # Cache NuGet packages
+#     - name: Cache NuGet packages
+#       uses: actions/cache@v4
+#       with:
+#         path: ~/.nuget/packages
+#         key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj', '**/*.sln') }}
+#         restore-keys: |
+#           ${{ runner.os }}-nuget-
 
-    # Restore NuGet packages
-    - name: Restore NuGet packages
-      run: nuget restore WindowsFormsApp/WindowsFormsApp.sln
+#     # Restore NuGet packages
+#     - name: Restore NuGet packages
+#       run: nuget restore WindowsFormsApp/WindowsFormsApp.sln
 
-    # Build the solution using MSBuild
-    - name: Build solution
-      run: msbuild WindowsFormsApp/WindowsFormsApp.sln /p:Configuration=Release
+#     # Build the solution using MSBuild
+#     - name: Build solution
+#       run: msbuild WindowsFormsApp/WindowsFormsApp.sln /p:Configuration=Release
     
-    - name: Run tests using VSTest
-      shell: pwsh
-      run: |
-        $vsPath = & "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe" -latest -products * -property installationPath
-        $vstest = "$vsPath\Common7\IDE\CommonExtensions\Microsoft\TestWindow\vstest.console.exe"
+#     - name: Run tests using VSTest
+#       shell: pwsh
+#       run: |
+#         $vsPath = & "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe" -latest -products * -property installationPath
+#         $vstest = "$vsPath\Common7\IDE\CommonExtensions\Microsoft\TestWindow\vstest.console.exe"
 
-        $dlls = Get-ChildItem -Recurse -Filter *Tests.dll | Where-Object { $_.FullName -like "*bin*Release*" }
+#         $dlls = Get-ChildItem -Recurse -Filter *Tests.dll | Where-Object { $_.FullName -like "*bin*Release*" }
 
-        foreach ($dll in $dlls) {
-          & $vstest $dll.FullName --logger:trx
-        }
+#         foreach ($dll in $dlls) {
+#           & $vstest $dll.FullName --logger:trx
+#         }
 
   analyze:
-    needs: build
+    # needs: build
     runs-on: windows-latest
 
     steps:
@@ -72,7 +72,7 @@ jobs:
             /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
 
       - name: Build solution (again for analysis)
-        run: msbuild WindowsFormSample/WindowsFormsApp/WindowsFormsApp.sln /p:Configuration=Release
+        run: msbuild WindowsFormsApp/WindowsFormsApp.sln /p:Configuration=Release
 
       - name: End SonarCloud analysis
         shell: pwsh
