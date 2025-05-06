@@ -20,6 +20,6 @@ jobs:
 
   deploy:
     needs: build-and-test
-    uses: ./.github/workflows/dotnet-deploy.yml
+    uses: ./.github/workflows/deploy.yml
     with:
       artifact-name: build-output
