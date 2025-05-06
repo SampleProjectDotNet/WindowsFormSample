@@ -1,31 +1,95 @@
 name: .NET Framework Build
 
 on:
-  push:
-    branches:
-      - main
   pull_request:
     branches:
       - main
   workflow_dispatch:   
 
 jobs:
-  build:
+#   build:
+#     runs-on: windows-latest
+
+#     steps:
+#     # Checkout the repository
+#     - name: Checkout code
+#       uses: actions/checkout@v4
+
+#     # Setup MSBuild
+#     - name: Setup MSBuild
+#       uses: microsoft/setup-msbuild@v1
+
+#     # Cache NuGet packages
+#     - name: Cache NuGet packages
+#       uses: actions/cache@v4
+#       with:
+#         path: ~/.nuget/packages
+#         key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj', '**/*.sln') }}
+#         restore-keys: |
+#           ${{ runner.os }}-nuget-
+
+#     # Restore NuGet packages
+#     - name: Restore NuGet packages
+#       run: nuget restore WindowsFormsApp/WindowsFormsApp.sln
+
+#     # Build the solution using MSBuild
+#     - name: Build solution
+#       run: msbuild WindowsFormsApp/WindowsFormsApp.sln /p:Configuration=Release
+    
+#     - name: Run tests using VSTest
+#       shell: pwsh
+#       run: |
+#         $vsPath = & "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe" -latest -products * -property installationPath
+#         $vstest = "$vsPath\Common7\IDE\CommonExtensions\Microsoft\TestWindow\vstest.console.exe"
+
+#         $dlls = Get-ChildItem -Recurse -Filter *Tests.dll | Where-Object { $_.FullName -like "*bin*Release*" }
+
+#         foreach ($dll in $dlls) {
+#           & $vstest $dll.FullName --logger:trx
+#         }
+
+  quality-gate:
+    # needs: build
     runs-on: windows-latest
 
     steps:
-    # Checkout the repository
-    - name: Checkout code
-      uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-    # Setup MSBuild
-    - name: Setup MSBuild
-      uses: microsoft/setup-msbuild@v1
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v1
 
-    # Restore NuGet packages
-    - name: Restore NuGet packages
-      run: nuget restore WindowsFormsApp/WindowsFormsApp.sln
+      - name: Install SonarScanner for MSBuild
+        run: choco install sonarscanner-msbuild-net46 --no-progress
 
-    # Build the solution using MSBuild
-    - name: Build solution
-      run: msbuild WindowsFormsApp/WindowsFormsApp.sln /p:Configuration=Release
+      - name: Begin SonarCloud analysis
+        shell: pwsh
+        run: |
+          SonarScanner.MSBuild.exe begin `
+            /k:"${{ secrets.SONAR_PROJECT_KEY }}" `
+            /o:"${{ secrets.SONAR_ORGANIZATION }}" `
+            /d:sonar.host.url="${{ secrets.SONAR_URL }}" `
+            /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
+            /d:sonar.qualitygate.wait=true
+
+      - name: Restore NuGet packages
+        run: nuget restore WindowsFormsApp/WindowsFormsApp.sln
+
+      - name: Build solution
+        run: msbuild WindowsFormsApp/WindowsFormsApp.sln /p:Configuration=Release
+
+      - name: End SonarCloud analysis
+        shell: pwsh
+        run: |
+          SonarScanner.MSBuild.exe end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
+
+      - name: SonarCloud Quality Gate check
+        if: always()
+        id: quality-gate
+        uses: sonarsource/sonarqube-quality-gate-action@master
+        with:
+          pollingTimeoutSec: 300
+        env:
+          SONAR_HOST_URL: ${{ secrets.SONAR_URL }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
