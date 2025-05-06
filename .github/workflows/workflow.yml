@@ -68,7 +68,7 @@ jobs:
           SonarScanner.MSBuild.exe begin `
             /k:"${{ secrets.SONAR_PROJECT_KEY }}" `
             /o:"${{ secrets.SONAR_ORGANIZATION }}" `
-            /d:sonar.host.url="https://sonarcloud.io" `
+            /d:sonar.host.url="${{ secrets.SONAR_URL }}" `
             /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
             /d:sonar.qualitygate.wait=true
 
@@ -90,6 +90,6 @@ jobs:
         with:
           pollingTimeoutSec: 300
         env:
-          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_URL }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
