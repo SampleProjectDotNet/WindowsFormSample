@@ -17,3 +17,7 @@ jobs:
       SONAR_ORGANIZATION: ${{ secrets.SONAR_ORGANIZATION }}
       SONAR_URL: ${{ secrets.SONAR_URL }}
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+  
+  publish-local:
+    needs: build-and-package
+    uses: ./.github/workflows/publish-to-local-server.yml
