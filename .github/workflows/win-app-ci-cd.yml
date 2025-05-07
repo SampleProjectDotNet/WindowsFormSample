@@ -7,8 +7,8 @@ on:
   workflow_dispatch:
 
 jobs:
-  build-and-test:
-    name: CI – Build, Test e Sonar
+  build-and-publish:
+    name: CI – Build, Test, Sonar e Publish
     uses: ./.github/workflows/dotnet-build-test.yml
     with:
       runSonar: true
@@ -17,9 +17,3 @@ jobs:
       SONAR_ORGANIZATION: ${{ secrets.SONAR_ORGANIZATION }}
       SONAR_URL: ${{ secrets.SONAR_URL }}
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-
-  deploy:
-    needs: build-and-test
-    uses: ./.github/workflows/deploy.yml
-    with:
-      artifact-name: nupkg
