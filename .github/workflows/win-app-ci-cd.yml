@@ -1,4 +1,4 @@
-name: CI/CD Orquestrado
+name: Windows Forms App CI/CD
 
 on:
   push:
@@ -11,12 +11,15 @@ jobs:
     name: CI – Build, Test, Sonar e Publish
     uses: SampleProjectDotNet/reusable-workflows/.github/workflows/dotnet-build-test.yml@main
     with:
+      solution-path: 'WindowsFormSample/WindowsFormsApp/WindowsFormsApp.sln'
+      project-folder: 'WindowsFormSample/WindowsFormsApp/WindowsFormsApp'
+      runs-on: 'windows-latest'
       runSonar: true
     secrets:
-      SONAR_PROJECT_KEY: ${{ secrets.SONAR_PROJECT_KEY }}
-      SONAR_ORGANIZATION: ${{ secrets.SONAR_ORGANIZATION }}
-      SONAR_URL: ${{ secrets.SONAR_URL }}
-      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      SONAR_PROJECT_KEY:      ${{ secrets.SONAR_PROJECT_KEY }}
+      SONAR_ORGANIZATION:     ${{ secrets.SONAR_ORGANIZATION }}
+      SONAR_URL:              ${{ secrets.SONAR_URL }}
+      SONAR_TOKEN:            ${{ secrets.SONAR_TOKEN }}
   
   publish-local:
     needs: build
