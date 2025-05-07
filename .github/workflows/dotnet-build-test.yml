@@ -96,13 +96,24 @@ jobs:
           name: nupkg
           path: ./artifact
 
-      - name: Publish to GitHub Packages
+      - name: Install NuGet.exe
+        run: |
+          Invoke-WebRequest -Uri https://dist.nuget.org/win-x86-commandline/latest/nuget.exe -OutFile nuget.exe
+        shell: powershell
+
+      - name: Create package NuGet
+        run: |
+          ./nuget.exe pack WindowsFormsApp/WindowsFormsApp.csproj -Properties Configuration=Release -OutputDirectory artifact
+        shell: powershell
+
+      - name: Publish in GitHub Packages
         run: |
           dotnet nuget push ./artifact/*.nupkg `
             --source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json" `
             --api-key "${{ secrets.GITHUB_TOKEN }}" `
             --skip-duplicate
         shell: powershell
+
 
       - name: Notify success
         if: success()
