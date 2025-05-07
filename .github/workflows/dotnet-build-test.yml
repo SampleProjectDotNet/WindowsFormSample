@@ -85,32 +85,36 @@ jobs:
   publish:
     needs: build-and-test
     runs-on: windows-latest
+
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+    - name: Checkout code
+      uses: actions/checkout@v4
 
-      - name: Download NuGet package artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: nupkg
-          path: ./artifact
+    - name: Download NuGet package artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: nupkg
+        path: ./artifact
 
-      - name: Install NuGet.exe
-        run: |
-          Invoke-WebRequest -Uri https://dist.nuget.org/win-x86-commandline/latest/nuget.exe -OutFile nuget.exe
-        shell: powershell
+    - name: Install NuGet CLI
+      run: |
+        Invoke-WebRequest -Uri https://dist.nuget.org/win-x86-commandline/latest/nuget.exe -OutFile nuget.exe
+      shell: powershell
 
-      - name: Publish in GitHub Packages
-        run: |
-          dotnet nuget push ./artifact/*.nupkg `
-            --source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json" `
-            --api-key "${{ secrets.GITHUB_TOKEN }}" `
-            --skip-duplicate
-        shell: powershell
+    - name: Start local file server
+      run: |
+        python -m http.server 8080 --directory artifact &
+        Start-Sleep -Seconds 5
+      shell: bash
 
+    - name: Simulate install from local file server
+      run: |
+        ./nuget.exe sources Add -Name "local-fake-feed" -Source http://localhost:8080
+        ./nuget.exe list -Source "local-fake-feed"
+      shell: powershell
 
-      - name: Notify success
-        if: success()
-        run: Write-Host "Pacote publicado no GitHub Packages com sucesso!"
-        shell: powershell
+    - name: Notify success
+      if: success()
+      run: Write-Host "Simulação de file server concluída com sucesso!"
+      shell: powershell
 
