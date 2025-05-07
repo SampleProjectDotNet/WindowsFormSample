@@ -70,12 +70,11 @@ jobs:
         SonarScanner.MSBuild.exe end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
       shell: pwsh
 
-    - name: Pack NuGet package
+    - name: Baixar e empacotar com NuGet.exe
       run: |
-        dotnet pack WindowsFormsApp/WindowsFormsApp/WindowsFormsApp.csproj `
-          --configuration Release `
-          --output nupkg
-      shell: pwsh
+        Invoke-WebRequest -Uri https://dist.nuget.org/win-x86-commandline/latest/nuget.exe -OutFile nuget.exe
+        ./nuget.exe pack WindowsFormsApp/WindowsFormsApp.csproj -Properties Configuration=Release -OutputDirectory nupkg
+      shell: powershell
 
     - name: Upload NuGet package artifact
       uses: actions/upload-artifact@v4
@@ -99,11 +98,6 @@ jobs:
       - name: Install NuGet.exe
         run: |
           Invoke-WebRequest -Uri https://dist.nuget.org/win-x86-commandline/latest/nuget.exe -OutFile nuget.exe
-        shell: powershell
-
-      - name: Create package NuGet
-        run: |
-          ./nuget.exe pack WindowsFormsApp/WindowsFormsApp.csproj -Properties Configuration=Release -OutputDirectory artifact
         shell: powershell
 
       - name: Publish in GitHub Packages
