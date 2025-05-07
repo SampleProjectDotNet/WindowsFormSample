@@ -103,9 +103,9 @@ jobs:
 
     - name: Start local file server
       run: |
-        python -m http.server 8080 --directory artifact &
+        Start-Process python "-m http.server 8080 --directory artifact"
         Start-Sleep -Seconds 5
-      shell: bash
+      shell: pwsh
 
     - name: Simulate install from local file server
       run: |
