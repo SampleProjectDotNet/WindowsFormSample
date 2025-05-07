@@ -73,7 +73,7 @@ jobs:
     - name: Baixar e empacotar com NuGet.exe
       run: |
         Invoke-WebRequest -Uri https://dist.nuget.org/win-x86-commandline/latest/nuget.exe -OutFile nuget.exe
-        ./nuget.exe pack WindowsFormsApp/WindowsFormsApp.csproj -Properties Configuration=Release -OutputDirectory nupkg
+        ./nuget.exe pack WindowsFormSample/WindowsFormsApp/WindowsFormsApp/WindowsFormsApp.csproj -Properties Configuration=Release -OutputDirectory nupkg
       shell: powershell
 
     - name: Upload NuGet package artifact
