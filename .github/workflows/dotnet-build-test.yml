@@ -73,7 +73,7 @@ jobs:
     - name: Baixar e empacotar com NuGet.exe
       run: |
         Invoke-WebRequest -Uri https://dist.nuget.org/win-x86-commandline/latest/nuget.exe -OutFile nuget.exe
-        ./nuget.exe pack WindowsFormsApp/WindowsFormsApp.csproj -Properties Configuration=Release -OutputDirectory nupkg
+        ./nuget.exe pack WindowsFormsApp/WindowsFormsApp/WindowsFormsApp.csproj -Properties Configuration=Release -OutputDirectory nupkg
       shell: powershell
 
     - name: Upload NuGet package artifact
@@ -81,36 +81,4 @@ jobs:
       with:
         name: nupkg
         path: nupkg/*.nupkg
-
-  publish:
-    needs: build-and-test
-    runs-on: windows-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Download NuGet package artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: nupkg
-          path: ./artifact
-
-      - name: Install NuGet.exe
-        run: |
-          Invoke-WebRequest -Uri https://dist.nuget.org/win-x86-commandline/latest/nuget.exe -OutFile nuget.exe
-        shell: powershell
-
-      - name: Publish in GitHub Packages
-        run: |
-          dotnet nuget push ./artifact/*.nupkg `
-            --source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json" `
-            --api-key "${{ secrets.GITHUB_TOKEN }}" `
-            --skip-duplicate
-        shell: powershell
-
-
-      - name: Notify success
-        if: success()
-        run: Write-Host "Pacote publicado no GitHub Packages com sucesso!"
-        shell: powershell
 

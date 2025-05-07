@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  build-and-publish:
+  build:
     name: CI – Build, Test, Sonar e Publish
     uses: ./.github/workflows/dotnet-build-test.yml
     with:
@@ -17,3 +17,7 @@ jobs:
       SONAR_ORGANIZATION: ${{ secrets.SONAR_ORGANIZATION }}
       SONAR_URL: ${{ secrets.SONAR_URL }}
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+  
+  publish-local:
+    needs: build
+    uses: ./.github/workflows/publish-to-local-server.yml
