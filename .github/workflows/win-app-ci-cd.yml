@@ -9,7 +9,7 @@ on:
 jobs:
   build:
     name: CI – Build, Test, Sonar e Publish
-    uses: ./.github/workflows/dotnet-build-test.yml
+    uses: SampleProjectDotNet/reusable-workflows/.github/workflows/publish-to-local-server.yml@main
     with:
       runSonar: true
     secrets:
@@ -20,4 +20,4 @@ jobs:
   
   publish-local:
     needs: build
-    uses: ./.github/workflows/publish-to-local-server.yml
+    uses: SampleProjectDotNet/reusable-workflows/.github/workflows/publish-to-local-server.yml@main
