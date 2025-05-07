@@ -106,17 +106,30 @@ jobs:
         Start-Process python "-m http.server 8080 --directory artifact"
         Start-Sleep -Seconds 5
       shell: pwsh
-
-    - name: Simulate install from local file server (file feed)
+    
+    - name: List files in artifact directory (local check)
       run: |
-        $feedPath = Resolve-Path ./artifact
-        ./nuget.exe sources Add -Name "local-fake-feed" -Source ("file:///" + $feedPath)
-        ./nuget.exe list -Source "local-fake-feed"
+        Write-Host "Arquivos presentes localmente na pasta artifact:"
+        Get-ChildItem -Path ./artifact -Recurse | Format-List
       shell: powershell
-
-
-    - name: Notify success
-      if: success()
-      run: Write-Host "Simulação de file server concluída com sucesso!"
+    
+    - name: Verify HTTP server is serving files
+      run: |
+        Write-Host "Verificando conteúdo servido via HTTP..."
+        Invoke-WebRequest -Uri http://localhost:8080/ -OutFile index.html
+        Write-Host "Conteúdo da página index.html (lista de arquivos):"
+        Get-Content index.html
+      shell: powershell
+    
+    - name: Download package from local file server
+      run: |
+        $packageName = (Get-ChildItem ./artifact/*.nupkg).Name
+        Write-Host "Baixando pacote: $packageName do servidor local via HTTP..."
+        Invoke-WebRequest -Uri ("http://localhost:8080/" + $packageName) -OutFile "downloaded-from-server.nupkg"
+        Write-Host "Download concluído."
+        $downloadedFile = Get-Item ./downloaded-from-server.nupkg
+        Write-Host "Arquivo baixado:"
+        Write-Host " - Nome: $($downloadedFile.Name)"
+        Write-Host " - Tamanho: $($downloadedFile.Length) bytes"
       shell: powershell
 
