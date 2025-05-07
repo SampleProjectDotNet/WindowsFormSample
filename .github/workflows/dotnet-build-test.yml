@@ -107,11 +107,13 @@ jobs:
         Start-Sleep -Seconds 5
       shell: pwsh
 
-    - name: Simulate install from local file server
+    - name: Simulate install from local file server (file feed)
       run: |
-        ./nuget.exe sources Add -Name "local-fake-feed" -Source http://localhost:8080
+        $feedPath = Resolve-Path ./artifact
+        ./nuget.exe sources Add -Name "local-fake-feed" -Source ("file:///" + $feedPath)
         ./nuget.exe list -Source "local-fake-feed"
       shell: powershell
+
 
     - name: Notify success
       if: success()
