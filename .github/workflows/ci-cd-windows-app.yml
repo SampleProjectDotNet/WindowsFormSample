@@ -7,8 +7,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
-    name: CI – Build, Test, Sonar e Publish
+  call-build:
     uses: SampleProjectDotNet/reusable-workflows/.github/workflows/dotnet-build-test.yml@main
     with:
       solution-path: 'WindowsFormsApp/WindowsFormsApp.sln'
@@ -22,6 +21,6 @@ jobs:
       SONAR_URL:              ${{ secrets.SONAR_URL }}
       SONAR_TOKEN:            ${{ secrets.SONAR_TOKEN }}
   
-  publish-local:
-    needs: build
+  call-publish:
+    needs: call-build
     uses: SampleProjectDotNet/reusable-workflows/.github/workflows/publish-to-local-server.yml@main
