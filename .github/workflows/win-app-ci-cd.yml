@@ -13,6 +13,7 @@ jobs:
     with:
       solution-path: 'WindowsFormsApp/WindowsFormsApp.sln'
       project-folder: 'WindowsFormsApp/WindowsFormsApp'
+      csproj: 'WindowsFormsApp/WindowsFormsApp/WindowsFormsApp.csproj'
       runs-on: 'windows-latest'
       runSonar: true
     secrets:
