@@ -11,8 +11,8 @@ jobs:
     name: CI – Build, Test, Sonar e Publish
     uses: SampleProjectDotNet/reusable-workflows/.github/workflows/dotnet-build-test.yml@main
     with:
-      solution-path: 'WindowsFormSample/WindowsFormsApp/WindowsFormsApp.sln'
-      project-folder: 'WindowsFormSample/WindowsFormsApp/WindowsFormsApp'
+      solution-path: 'WindowsFormsApp/WindowsFormsApp.sln'
+      project-folder: 'WindowsFormsApp/WindowsFormsApp'
       runs-on: 'windows-latest'
       runSonar: true
     secrets:
