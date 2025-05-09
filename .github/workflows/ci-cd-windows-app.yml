@@ -10,16 +10,8 @@ jobs:
   call-build:
     uses: SampleProjectDotNet/reusable-workflows/.github/workflows/dotnet-build-test.yml@main
     with:
-      solution-path: 'WindowsFormsApp/WindowsFormsApp.sln'
-      project-folder: 'WindowsFormsApp/WindowsFormsApp'
-      csproj: 'WindowsFormsApp/WindowsFormsApp/WindowsFormsApp.csproj'
-      runs-on: 'windows-latest'
-      runSonar: true
-    secrets:
-      SONAR_PROJECT_KEY:      ${{ secrets.SONAR_PROJECT_KEY }}
-      SONAR_ORGANIZATION:     ${{ secrets.SONAR_ORGANIZATION }}
-      SONAR_URL:              ${{ secrets.SONAR_URL }}
-      SONAR_TOKEN:            ${{ secrets.SONAR_TOKEN }}
+      project-name: 'WindowsFormsApp'
+    secrets: inherit
   
   call-publish:
     needs: call-build
