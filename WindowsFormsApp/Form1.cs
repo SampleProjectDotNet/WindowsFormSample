@@ -1,6 +1,12 @@
-using System;
+ï»¿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 using System.Windows.Forms;
-using WindowsFormsApp.Service;
 
 namespace WindowsFormsApp
 {
@@ -9,22 +15,6 @@ namespace WindowsFormsApp
         public Form1()
         {
             InitializeComponent();
-        }
-
-        private void btnConvert_Click(object sender, EventArgs e)
-        {
-            if (double.TryParse(txtCelsius.Text, out double celsius))
-            {
-                double fahrenheit = TemperatureConverter.CelsiusToFahrenheit(celsius);
-                double kelvin = TemperatureConverter.CelsiusToKelvin(celsius);
-
-                lblFahrenheit.Text = $"Fahrenheit: {fahrenheit:F2}";
-                lblKelvin.Text = $"Kelvin: {kelvin:F2}";
-            }
-            else
-            {
-                MessageBox.Show("Por favor, insira um valor válido para Celsius.", "Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
         }
     }
 }
