@@ -9,8 +9,6 @@ on:
 jobs:
   call-build:
     uses: SampleProjectDotNet/reusable-workflows/.github/workflows/dotnet-build-test.yml@main
-    with:
-      project-name: 'WindowsFormsApp'
     secrets: inherit
   
   call-publish:
